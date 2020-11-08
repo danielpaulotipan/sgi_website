@@ -1,6 +1,4 @@
 """
-Latest Edit: October 13, 2020
-
 SGI
 
 pip3 install -r requirements.txt
@@ -25,7 +23,6 @@ from flask_sqlalchemy  import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
-
 #--------------------------------------------------------------------------------------------------------------------------------------------
 app = Flask(__name__) # Start of Flask App
 bootstrap = Bootstrap(app) # For WTForms
@@ -49,40 +46,41 @@ class Sgi(UserMixin, db.Model):
 class Truck(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     truck_id = db.Column(db.String(50))
-    truck_gps = db.Column(db.Float)
+    truck_long = db.Column(db.Float)
+    truck_lat = db.Column(db.Float)
     truck_temp = db.Column(db.Float)
     truck_hum = db.Column(db.Float)
-    truck_dt = db.Column(db.DateTime)
+    truck_dt = db.Column(db.String(50))
 
 class Whouse(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     whouse_id = db.Column(db.String(50))
     whouse_temp = db.Column(db.Float)
     whouse_hum = db.Column(db.Float)
-    whouse_dt = db.Column(db.DateTime)
+    whouse_dt = db.Column(db.String(50))
 
 class Inventory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    farm_id = db.Column(db.Float)
+    farm_id = db.Column(db.String(50))
     type = db.Column(db.String(50))
     produce = db.Column(db.String(50))
     buy_price = db.Column(db.Float)
     kilo = db.Column(db.Float)
-    buy_dt = db.Column(db.DateTime)
+    buy_dt = db.Column(db.String(50))
 
 class Sales(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(50))
+    customer_email = db.Column(db.String(50))
     customer_id = db.Column(db.String(50))
-    type = db.Column(db.String(50))
-    produce = db.Column(db.String(50))
-    price = db.Column(db.Float)
-    kilo = db.Column(db.Float)
-    name = db.Column(db.String(50))
-    address = db.Column(db.String(50))
-    contact = db.Column(db.Float)
-    sale_dt = db.Column(db.Float)
-    delivery_dt = db.Column(db.Float)
+    customer_name = db.Column(db.String(50))
+    customer_type = db.Column(db.String(50))
+    customer_produce = db.Column(db.String(50))
+    customer_price = db.Column(db.Float)
+    customer_kilo = db.Column(db.Float)
+    customer_address = db.Column(db.String(50))
+    customer_contact = db.Column(db.Float)
+    customer_sale_dt = db.Column(db.Float)
+    customer_delivery_dt = db.Column(db.String(50))
 
 """
 Initialize in Terminal with Python to make the User db above
@@ -109,23 +107,25 @@ class RegisterForm(FlaskForm):
     confirm = PasswordField('Repeat Password')
 
 class InventoryForm(FlaskForm):
-    email = StringField('Email', validators=[InputRequired(), Email(message='Invalid email'), Length(max=50)])
     farm_id = StringField('Farm_id', validators=[InputRequired(), Length(min=2, max=30)])
     type = StringField('Type of Produce', validators=[InputRequired(), Length(min=2, max=30)])
     produce = StringField('Produce', validators=[InputRequired(), Length(min=2, max=30)])
-    buy_price = FloatField('Buy Price', validators=[InputRequired(), Length(min=2, max=30)])
+    buy_price = FloatField('Buy Price', validators=[InputRequired()])
+    kilo = FloatField('Kilos', validators=[InputRequired()])
+    buy_dt = StringField('Buy Date ', validators=[InputRequired(), Length(min=4, max=30)])
 
 class SalesForm(FlaskForm):
-    email = StringField('Email', validators=[InputRequired(), Email(message='Invalid email'), Length(max=50)])
-    name = StringField('Name', validators=[InputRequired(), Length(min=4, max=30)])
-    type = StringField('Type', validators=[InputRequired(), Length(min=4, max=30)])
-    produce = StringField('Produce', validators=[InputRequired(), Length(min=4, max=30)])
-    price = FloatField('Sell Price', validators=[InputRequired()])
-    kilo = FloatField('Kilograms', validators=[InputRequired()])
-    address = StringField('Delivery Address', validators=[InputRequired(), Length(min=4, max=30)])
-    contact = FloatField('Contact Number', validators=[InputRequired()])
-    delivery_dt = FloatField('Delivery Date ', validators=[InputRequired()])
+    customer_email = StringField('Email', validators=[InputRequired(), Email(message='Invalid email'), Length(max=50)])
+    customer_name = StringField('Name', validators=[InputRequired(), Length(min=4, max=30)])
+    customer_type = StringField('Type', validators=[InputRequired(), Length(min=4, max=30)])
+    customer_produce = StringField('Produce', validators=[InputRequired(), Length(min=4, max=30)])
+    customer_price = FloatField('Sell Price', validators=[InputRequired()])
+    customer_kilo = FloatField('Kilograms', validators=[InputRequired()])
+    customer_address = StringField('Delivery Address', validators=[InputRequired(), Length(min=4, max=30)])
+    customer_contact = FloatField('Contact Number', validators=[InputRequired()])
+    customer_delivery_dt = StringField('Delivery Date ', validators=[InputRequired(), Length(min=4, max=30)])
 
+# =========================================================================================================
 # Connecting to www.website.com/home
 @app.route("/home")
 @app.route('/')
@@ -135,40 +135,50 @@ def index():
 
 @app.route('/basket', methods=['GET', 'POST'])
 def basket():
-
     form = SalesForm()
     if form.validate_on_submit():
-        record = Sales(email=form.email.data,
-                       name=form.name.data,
-                       type=form.type.data,
-                       produce=form.produce.data,
-                       price=form.price.data,
-                       kilo=form.kilo.data,
-                       address=form.address.data,
-                       contact=form.contact.data,
-                       delivery_dt=form.delivery_dt.data,
+        record = Sales(customer_email=form.customer_email.data,
+                       customer_name=form.customer_name.data,
+                       customer_type=form.customer_type.data,
+                       customer_produce=form.customer_produce.data,
+                       customer_price=form.customer_price.data,
+                       customer_kilo=form.customer_kilo.data,
+                       customer_address=form.customer_address.data,
+                       customer_contact=form.customer_contact.data,
+                       customer_delivery_dt=form.customer_delivery_dt.data,
                        )
-
         db.session.add(record)
         db.session.commit()
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('thanks'))
     return render_template('basket.html', form=form)
 
+@app.route('/inventory', methods=['GET', 'POST'])
+def inventory():
+    form = InventoryForm()
+    if form.validate_on_submit():
+        record = Inventory(farm_id=form.farm_id.data,
+                       type=form.type.data,
+                       produce=form.produce.data,
+                       buy_price=form.buy_price.data,
+                       kilo=form.kilo.data,
+                       buy_dt=form.buy_dt.data,
+                       )
+        db.session.add(record)
+        db.session.commit()
+        return redirect(url_for('thanks'))
+    return render_template('inventory.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-
     if form.validate_on_submit():
         user = Sgi.query.filter_by(username=form.username.data).first()
         if user:
             if check_password_hash(user.password, form.password.data):
                 login_user(user, remember=form.remember.data)
                 return redirect(url_for('dashboard'))
-
         return '<h1>Invalid username or password</h1>'
         #return '<h1>' + form.username.data + ' ' + form.password.data + '</h1>'
-
     return render_template('login.html', form=form)
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -183,27 +193,23 @@ def signup():
                         )
         db.session.add(new_user)
         db.session.commit()
-
         return redirect(url_for('login'))
         #return '<h1>' + form.username.data + ' ' + form.email.data + ' ' + form.password.data + '</h1>'
-
     return render_template('signup.html', form=form)
-
-
 
 @app.route('/dashboard', methods=['GET','POST'])
 @login_required
 def dashboard():
-    if request.method == 'POST':
-        try:
-            crop = request.form['crops']
-            region = request.form['region']
-        except:
-            redirect(url_for('dashboard'))
-
-    return render_template('dashboard.html', name=current_user.username)
+    return render_template('dashboard.html')
 
 
+
+@app.route('/thanks')
+def thanks():
+    """
+    Thanks page
+    """
+    return render_template('thanks.html')
 
 @app.route('/logout')
 @login_required
@@ -212,8 +218,6 @@ def logout():
     return redirect(url_for('index'))
 
 # ================================================================================================================================================================================================
-
-#---------------------------------------------------------------------------------------------------------------------------------------------
 # End of Flask App
 if __name__ == "__main__":
 #    app.run(host='0.0.0.0')
