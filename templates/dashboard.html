@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %} Dashboard {% endblock %}
+{% block content %}
+<br>
+<div class="card-deck" >
+  <div class="card">
+    <a href="/"> <img class="card-img-top" src="static/truck.jpg" height = '500' alt="Truck 1"> </a>
+    <div class="card-body">
+      <a href="/"> <h5 class="card-title">Truck 1 Data</h5> </a>
+       <p class="card-text"> Truck Type 1 </p>
+    </div>
+  </div>
+  <div class="card">
+    <a href="/"> <img class="card-img-top" src="static/whouse.jpg" height = '500'  alt="Warehouse 1"> </a>
+    <div class="card-body">
+      <a href="/"> <h5 class="card-title">Warehouse 1 Data</h5> </a>
+        <p class="card-text"> Warehouse Location 1 </p>
+    </div>
+  </div>
+</div>
+<br>
+
+{% endblock %}
