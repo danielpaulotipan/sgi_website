@@ -8,15 +8,15 @@
    <div class="card-body" style="width: 28rem;">
       <form class="form-buy" method="POST" action="/basket">
        {{ form.hidden_tag() }}
-       {{ wtf.form_field(form.email) }}
-       {{ wtf.form_field(form.name) }}
-       {{ wtf.form_field(form.type) }}
-       {{ wtf.form_field(form.produce) }}
-       {{ wtf.form_field(form.price) }}
-       {{ wtf.form_field(form.kilo) }}
-       {{ wtf.form_field(form.address) }}
-       {{ wtf.form_field(form.contact) }}
-       {{ wtf.form_field(form.delivery_dt) }}
+       {{ wtf.form_field(form.customer_email) }}
+       {{ wtf.form_field(form.customer_name) }}
+       {{ wtf.form_field(form.customer_type) }}
+       {{ wtf.form_field(form.customer_produce) }}
+       {{ wtf.form_field(form.customer_price) }}
+       {{ wtf.form_field(form.customer_kilo) }}
+       {{ wtf.form_field(form.customer_address) }}
+       {{ wtf.form_field(form.customer_contact) }}
+       {{ wtf.form_field(form.customer_delivery_dt) }}
     <button class="btn btn-success" type="submit">Check Out</button>
   </form>
    </div>
